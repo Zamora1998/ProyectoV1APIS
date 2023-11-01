@@ -1,0 +1,703 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="tiusr30pl_PeliculasProgra11Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ActoresStaff">
+          <Key>
+            <PropertyRef Name="ActorStaffID" />
+          </Key>
+          <Property Name="ActorStaffID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="PaginaWeb" Type="varchar" MaxLength="255" />
+          <Property Name="Facebook" Type="varchar" MaxLength="255" />
+          <Property Name="Instagram" Type="varchar" MaxLength="255" />
+          <Property Name="Twitter" Type="varchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="CalificacionesExpertos">
+          <Key>
+            <PropertyRef Name="PeliculaID" />
+            <PropertyRef Name="ExpertoID" />
+          </Key>
+          <Property Name="PeliculaID" Type="int" Nullable="false" />
+          <Property Name="ExpertoID" Type="int" Nullable="false" />
+          <Property Name="Calificacion" Type="decimal" Precision="3" Scale="1" />
+        </EntityType>
+        <EntityType Name="Comentarios">
+          <Key>
+            <PropertyRef Name="ComentarioID" />
+          </Key>
+          <Property Name="ComentarioID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PeliculaID" Type="int" />
+          <Property Name="UsuarioID" Type="int" />
+          <Property Name="Comentario" Type="text" />
+          <Property Name="FechaComentario" Type="datetime" />
+          <Property Name="RespuestaAComentarioID" Type="int" />
+        </EntityType>
+        <EntityType Name="Estado">
+          <Key>
+            <PropertyRef Name="EstadoID" />
+          </Key>
+          <Property Name="EstadoID" Type="int" Nullable="false" />
+          <Property Name="NombreEstado" Type="varchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="ExpertosEnCalificaciones">
+          <Key>
+            <PropertyRef Name="ExpertoID" />
+          </Key>
+          <Property Name="ExpertoID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="codigoexperto" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Peliculas">
+          <Key>
+            <PropertyRef Name="PeliculaID" />
+          </Key>
+          <Property Name="PeliculaID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Resena" Type="text" />
+          <Property Name="CalificacionGenerQal" Type="int" />
+          <Property Name="FechaLanzamiento" Type="date" />
+          <Property Name="PosterID" Type="int" />
+        </EntityType>
+        <EntityType Name="Posters">
+          <Key>
+            <PropertyRef Name="PosterID" />
+          </Key>
+          <Property Name="PosterID" Type="int" Nullable="false" />
+          <Property Name="NombreArchivo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="RutaArchivo" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Rol">
+          <Key>
+            <PropertyRef Name="RolID" />
+          </Key>
+          <Property Name="RolID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="RolesEnPelicula">
+          <Key>
+            <PropertyRef Name="RolEnPeliculaID" />
+          </Key>
+          <Property Name="RolEnPeliculaID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RolID" Type="int" />
+          <Property Name="ActorStaffID" Type="int" />
+          <Property Name="IDPelic" Type="int" />
+          <Property Name="OrdenAparicion" Type="int" />
+        </EntityType>
+        <EntityType Name="Usuarios">
+          <Key>
+            <PropertyRef Name="UsuarioID" />
+          </Key>
+          <Property Name="UsuarioID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NombreUsuario" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Apellidos" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Email" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Contrasena" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="IDEstado" Type="int" />
+          <Property Name="Token" Type="varchar" MaxLength="50" />
+          <Property Name="TokenExpiracion" Type="smalldatetime" />
+        </EntityType>
+        <Association Name="FK__Calificac__Exper__48CFD27E">
+          <End Role="ExpertosEnCalificaciones" Type="Self.ExpertosEnCalificaciones" Multiplicity="1" />
+          <End Role="CalificacionesExpertos" Type="Self.CalificacionesExpertos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ExpertosEnCalificaciones">
+              <PropertyRef Name="ExpertoID" />
+            </Principal>
+            <Dependent Role="CalificacionesExpertos">
+              <PropertyRef Name="ExpertoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Calificac__Pelic__47DBAE45">
+          <End Role="Peliculas" Type="Self.Peliculas" Multiplicity="1" />
+          <End Role="CalificacionesExpertos" Type="Self.CalificacionesExpertos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Peliculas">
+              <PropertyRef Name="PeliculaID" />
+            </Principal>
+            <Dependent Role="CalificacionesExpertos">
+              <PropertyRef Name="PeliculaID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Comentari__Pelic__4F7CD00D">
+          <End Role="Peliculas" Type="Self.Peliculas" Multiplicity="0..1" />
+          <End Role="Comentarios" Type="Self.Comentarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Peliculas">
+              <PropertyRef Name="PeliculaID" />
+            </Principal>
+            <Dependent Role="Comentarios">
+              <PropertyRef Name="PeliculaID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Comentari__Respu__5165187F">
+          <End Role="Comentarios" Type="Self.Comentarios" Multiplicity="0..1" />
+          <End Role="Comentarios1" Type="Self.Comentarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Comentarios">
+              <PropertyRef Name="ComentarioID" />
+            </Principal>
+            <Dependent Role="Comentarios1">
+              <PropertyRef Name="RespuestaAComentarioID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Comentari__Usuar__5070F446">
+          <End Role="Usuarios" Type="Self.Usuarios" Multiplicity="0..1" />
+          <End Role="Comentarios" Type="Self.Comentarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="UsuarioID" />
+            </Principal>
+            <Dependent Role="Comentarios">
+              <PropertyRef Name="UsuarioID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Peliculas__Poste__403A8C7D">
+          <End Role="Posters" Type="Self.Posters" Multiplicity="0..1" />
+          <End Role="Peliculas" Type="Self.Peliculas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Posters">
+              <PropertyRef Name="PosterID" />
+            </Principal>
+            <Dependent Role="Peliculas">
+              <PropertyRef Name="PosterID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__RolesEnPe__Actor__440B1D61">
+          <End Role="ActoresStaff" Type="Self.ActoresStaff" Multiplicity="0..1" />
+          <End Role="RolesEnPelicula" Type="Self.RolesEnPelicula" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ActoresStaff">
+              <PropertyRef Name="ActorStaffID" />
+            </Principal>
+            <Dependent Role="RolesEnPelicula">
+              <PropertyRef Name="ActorStaffID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__RolesEnPe__IDPel__44FF419A">
+          <End Role="Peliculas" Type="Self.Peliculas" Multiplicity="0..1" />
+          <End Role="RolesEnPelicula" Type="Self.RolesEnPelicula" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Peliculas">
+              <PropertyRef Name="PeliculaID" />
+            </Principal>
+            <Dependent Role="RolesEnPelicula">
+              <PropertyRef Name="IDPelic" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__RolesEnPe__RolID__4316F928">
+          <End Role="Rol" Type="Self.Rol" Multiplicity="0..1" />
+          <End Role="RolesEnPelicula" Type="Self.RolesEnPelicula" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rol">
+              <PropertyRef Name="RolID" />
+            </Principal>
+            <Dependent Role="RolesEnPelicula">
+              <PropertyRef Name="RolID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Usuarios__IDEsta__4CA06362">
+          <End Role="Estado" Type="Self.Estado" Multiplicity="0..1" />
+          <End Role="Usuarios" Type="Self.Usuarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estado">
+              <PropertyRef Name="EstadoID" />
+            </Principal>
+            <Dependent Role="Usuarios">
+              <PropertyRef Name="IDEstado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="tiusr30pl_PeliculasProgra11ModelStoreContainer">
+          <EntitySet Name="ActoresStaff" EntityType="Self.ActoresStaff" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="CalificacionesExpertos" EntityType="Self.CalificacionesExpertos" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="Comentarios" EntityType="Self.Comentarios" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="Estado" EntityType="Self.Estado" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="ExpertosEnCalificaciones" EntityType="Self.ExpertosEnCalificaciones" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="Peliculas" EntityType="Self.Peliculas" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="Posters" EntityType="Self.Posters" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="Rol" EntityType="Self.Rol" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="RolesEnPelicula" EntityType="Self.RolesEnPelicula" Schema="ITDevelopersV" store:Type="Tables" />
+          <EntitySet Name="Usuarios" EntityType="Self.Usuarios" Schema="ITDevelopersV" store:Type="Tables" />
+          <AssociationSet Name="FK__Calificac__Exper__48CFD27E" Association="Self.FK__Calificac__Exper__48CFD27E">
+            <End Role="ExpertosEnCalificaciones" EntitySet="ExpertosEnCalificaciones" />
+            <End Role="CalificacionesExpertos" EntitySet="CalificacionesExpertos" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Calificac__Pelic__47DBAE45" Association="Self.FK__Calificac__Pelic__47DBAE45">
+            <End Role="Peliculas" EntitySet="Peliculas" />
+            <End Role="CalificacionesExpertos" EntitySet="CalificacionesExpertos" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Comentari__Pelic__4F7CD00D" Association="Self.FK__Comentari__Pelic__4F7CD00D">
+            <End Role="Peliculas" EntitySet="Peliculas" />
+            <End Role="Comentarios" EntitySet="Comentarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Comentari__Respu__5165187F" Association="Self.FK__Comentari__Respu__5165187F">
+            <End Role="Comentarios" EntitySet="Comentarios" />
+            <End Role="Comentarios1" EntitySet="Comentarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Comentari__Usuar__5070F446" Association="Self.FK__Comentari__Usuar__5070F446">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Comentarios" EntitySet="Comentarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Peliculas__Poste__403A8C7D" Association="Self.FK__Peliculas__Poste__403A8C7D">
+            <End Role="Posters" EntitySet="Posters" />
+            <End Role="Peliculas" EntitySet="Peliculas" />
+          </AssociationSet>
+          <AssociationSet Name="FK__RolesEnPe__Actor__440B1D61" Association="Self.FK__RolesEnPe__Actor__440B1D61">
+            <End Role="ActoresStaff" EntitySet="ActoresStaff" />
+            <End Role="RolesEnPelicula" EntitySet="RolesEnPelicula" />
+          </AssociationSet>
+          <AssociationSet Name="FK__RolesEnPe__IDPel__44FF419A" Association="Self.FK__RolesEnPe__IDPel__44FF419A">
+            <End Role="Peliculas" EntitySet="Peliculas" />
+            <End Role="RolesEnPelicula" EntitySet="RolesEnPelicula" />
+          </AssociationSet>
+          <AssociationSet Name="FK__RolesEnPe__RolID__4316F928" Association="Self.FK__RolesEnPe__RolID__4316F928">
+            <End Role="Rol" EntitySet="Rol" />
+            <End Role="RolesEnPelicula" EntitySet="RolesEnPelicula" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Usuarios__IDEsta__4CA06362" Association="Self.FK__Usuarios__IDEsta__4CA06362">
+            <End Role="Estado" EntitySet="Estado" />
+            <End Role="Usuarios" EntitySet="Usuarios" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="tiusr30pl_PeliculasProgra11Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ActoresStaff">
+          <Key>
+            <PropertyRef Name="ActorStaffID" />
+          </Key>
+          <Property Name="ActorStaffID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="PaginaWeb" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Facebook" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Instagram" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Twitter" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="RolesEnPelicula" Relationship="Self.FK__RolesEnPe__Actor__440B1D61" FromRole="ActoresStaff" ToRole="RolesEnPelicula" />
+        </EntityType>
+        <EntityType Name="CalificacionesExpertos">
+          <Key>
+            <PropertyRef Name="PeliculaID" />
+            <PropertyRef Name="ExpertoID" />
+          </Key>
+          <Property Name="PeliculaID" Type="Int32" Nullable="false" />
+          <Property Name="ExpertoID" Type="Int32" Nullable="false" />
+          <Property Name="Calificacion" Type="Decimal" Precision="3" Scale="1" />
+          <NavigationProperty Name="ExpertosEnCalificaciones" Relationship="Self.FK__Calificac__Exper__48CFD27E" FromRole="CalificacionesExpertos" ToRole="ExpertosEnCalificaciones" />
+          <NavigationProperty Name="Peliculas" Relationship="Self.FK__Calificac__Pelic__47DBAE45" FromRole="CalificacionesExpertos" ToRole="Peliculas" />
+        </EntityType>
+        <EntityType Name="Comentarios">
+          <Key>
+            <PropertyRef Name="ComentarioID" />
+          </Key>
+          <Property Name="ComentarioID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PeliculaID" Type="Int32" />
+          <Property Name="UsuarioID" Type="Int32" />
+          <Property Name="Comentario" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="FechaComentario" Type="DateTime" Precision="3" />
+          <Property Name="RespuestaAComentarioID" Type="Int32" />
+          <NavigationProperty Name="Peliculas" Relationship="Self.FK__Comentari__Pelic__4F7CD00D" FromRole="Comentarios" ToRole="Peliculas" />
+          <NavigationProperty Name="Comentarios1" Relationship="Self.FK__Comentari__Respu__5165187F" FromRole="Comentarios" ToRole="Comentarios1" />
+          <NavigationProperty Name="Comentarios2" Relationship="Self.FK__Comentari__Respu__5165187F" FromRole="Comentarios1" ToRole="Comentarios" />
+          <NavigationProperty Name="Usuarios" Relationship="Self.FK__Comentari__Usuar__5070F446" FromRole="Comentarios" ToRole="Usuarios" />
+        </EntityType>
+        <EntityType Name="Estado">
+          <Key>
+            <PropertyRef Name="EstadoID" />
+          </Key>
+          <Property Name="EstadoID" Type="Int32" Nullable="false" />
+          <Property Name="NombreEstado" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Usuarios" Relationship="Self.FK__Usuarios__IDEsta__4CA06362" FromRole="Estado" ToRole="Usuarios" />
+        </EntityType>
+        <EntityType Name="ExpertosEnCalificaciones">
+          <Key>
+            <PropertyRef Name="ExpertoID" />
+          </Key>
+          <Property Name="ExpertoID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="codigoexperto" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="CalificacionesExpertos" Relationship="Self.FK__Calificac__Exper__48CFD27E" FromRole="ExpertosEnCalificaciones" ToRole="CalificacionesExpertos" />
+        </EntityType>
+        <EntityType Name="Peliculas">
+          <Key>
+            <PropertyRef Name="PeliculaID" />
+          </Key>
+          <Property Name="PeliculaID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Resena" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CalificacionGenerQal" Type="Int32" />
+          <Property Name="FechaLanzamiento" Type="DateTime" Precision="0" />
+          <Property Name="PosterID" Type="Int32" />
+          <NavigationProperty Name="CalificacionesExpertos" Relationship="Self.FK__Calificac__Pelic__47DBAE45" FromRole="Peliculas" ToRole="CalificacionesExpertos" />
+          <NavigationProperty Name="Comentarios" Relationship="Self.FK__Comentari__Pelic__4F7CD00D" FromRole="Peliculas" ToRole="Comentarios" />
+          <NavigationProperty Name="Posters" Relationship="Self.FK__Peliculas__Poste__403A8C7D" FromRole="Peliculas" ToRole="Posters" />
+          <NavigationProperty Name="RolesEnPelicula" Relationship="Self.FK__RolesEnPe__IDPel__44FF419A" FromRole="Peliculas" ToRole="RolesEnPelicula" />
+        </EntityType>
+        <EntityType Name="Posters">
+          <Key>
+            <PropertyRef Name="PosterID" />
+          </Key>
+          <Property Name="PosterID" Type="Int32" Nullable="false" />
+          <Property Name="NombreArchivo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="RutaArchivo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Peliculas" Relationship="Self.FK__Peliculas__Poste__403A8C7D" FromRole="Posters" ToRole="Peliculas" />
+        </EntityType>
+        <EntityType Name="Rol">
+          <Key>
+            <PropertyRef Name="RolID" />
+          </Key>
+          <Property Name="RolID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="RolesEnPelicula" Relationship="Self.FK__RolesEnPe__RolID__4316F928" FromRole="Rol" ToRole="RolesEnPelicula" />
+        </EntityType>
+        <EntityType Name="RolesEnPelicula">
+          <Key>
+            <PropertyRef Name="RolEnPeliculaID" />
+          </Key>
+          <Property Name="RolEnPeliculaID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RolID" Type="Int32" />
+          <Property Name="ActorStaffID" Type="Int32" />
+          <Property Name="IDPelic" Type="Int32" />
+          <Property Name="OrdenAparicion" Type="Int32" />
+          <NavigationProperty Name="ActoresStaff" Relationship="Self.FK__RolesEnPe__Actor__440B1D61" FromRole="RolesEnPelicula" ToRole="ActoresStaff" />
+          <NavigationProperty Name="Peliculas" Relationship="Self.FK__RolesEnPe__IDPel__44FF419A" FromRole="RolesEnPelicula" ToRole="Peliculas" />
+          <NavigationProperty Name="Rol" Relationship="Self.FK__RolesEnPe__RolID__4316F928" FromRole="RolesEnPelicula" ToRole="Rol" />
+        </EntityType>
+        <EntityType Name="Usuarios">
+          <Key>
+            <PropertyRef Name="UsuarioID" />
+          </Key>
+          <Property Name="UsuarioID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NombreUsuario" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Apellidos" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Contrasena" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="IDEstado" Type="Int32" />
+          <Property Name="Token" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TokenExpiracion" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="Comentarios" Relationship="Self.FK__Comentari__Usuar__5070F446" FromRole="Usuarios" ToRole="Comentarios" />
+          <NavigationProperty Name="Estado" Relationship="Self.FK__Usuarios__IDEsta__4CA06362" FromRole="Usuarios" ToRole="Estado" />
+        </EntityType>
+        <Association Name="FK__RolesEnPe__Actor__440B1D61">
+          <End Role="ActoresStaff" Type="Self.ActoresStaff" Multiplicity="0..1" />
+          <End Role="RolesEnPelicula" Type="Self.RolesEnPelicula" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ActoresStaff">
+              <PropertyRef Name="ActorStaffID" />
+            </Principal>
+            <Dependent Role="RolesEnPelicula">
+              <PropertyRef Name="ActorStaffID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Calificac__Exper__48CFD27E">
+          <End Role="ExpertosEnCalificaciones" Type="Self.ExpertosEnCalificaciones" Multiplicity="1" />
+          <End Role="CalificacionesExpertos" Type="Self.CalificacionesExpertos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ExpertosEnCalificaciones">
+              <PropertyRef Name="ExpertoID" />
+            </Principal>
+            <Dependent Role="CalificacionesExpertos">
+              <PropertyRef Name="ExpertoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Calificac__Pelic__47DBAE45">
+          <End Role="Peliculas" Type="Self.Peliculas" Multiplicity="1" />
+          <End Role="CalificacionesExpertos" Type="Self.CalificacionesExpertos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Peliculas">
+              <PropertyRef Name="PeliculaID" />
+            </Principal>
+            <Dependent Role="CalificacionesExpertos">
+              <PropertyRef Name="PeliculaID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Comentari__Pelic__4F7CD00D">
+          <End Role="Peliculas" Type="Self.Peliculas" Multiplicity="0..1" />
+          <End Role="Comentarios" Type="Self.Comentarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Peliculas">
+              <PropertyRef Name="PeliculaID" />
+            </Principal>
+            <Dependent Role="Comentarios">
+              <PropertyRef Name="PeliculaID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Comentari__Respu__5165187F">
+          <End Role="Comentarios" Type="Self.Comentarios" Multiplicity="0..1" />
+          <End Role="Comentarios1" Type="Self.Comentarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Comentarios">
+              <PropertyRef Name="ComentarioID" />
+            </Principal>
+            <Dependent Role="Comentarios1">
+              <PropertyRef Name="RespuestaAComentarioID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Comentari__Usuar__5070F446">
+          <End Role="Usuarios" Type="Self.Usuarios" Multiplicity="0..1" />
+          <End Role="Comentarios" Type="Self.Comentarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="UsuarioID" />
+            </Principal>
+            <Dependent Role="Comentarios">
+              <PropertyRef Name="UsuarioID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Usuarios__IDEsta__4CA06362">
+          <End Role="Estado" Type="Self.Estado" Multiplicity="0..1" />
+          <End Role="Usuarios" Type="Self.Usuarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estado">
+              <PropertyRef Name="EstadoID" />
+            </Principal>
+            <Dependent Role="Usuarios">
+              <PropertyRef Name="IDEstado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Peliculas__Poste__403A8C7D">
+          <End Role="Posters" Type="Self.Posters" Multiplicity="0..1" />
+          <End Role="Peliculas" Type="Self.Peliculas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Posters">
+              <PropertyRef Name="PosterID" />
+            </Principal>
+            <Dependent Role="Peliculas">
+              <PropertyRef Name="PosterID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__RolesEnPe__IDPel__44FF419A">
+          <End Role="Peliculas" Type="Self.Peliculas" Multiplicity="0..1" />
+          <End Role="RolesEnPelicula" Type="Self.RolesEnPelicula" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Peliculas">
+              <PropertyRef Name="PeliculaID" />
+            </Principal>
+            <Dependent Role="RolesEnPelicula">
+              <PropertyRef Name="IDPelic" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__RolesEnPe__RolID__4316F928">
+          <End Role="Rol" Type="Self.Rol" Multiplicity="0..1" />
+          <End Role="RolesEnPelicula" Type="Self.RolesEnPelicula" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rol">
+              <PropertyRef Name="RolID" />
+            </Principal>
+            <Dependent Role="RolesEnPelicula">
+              <PropertyRef Name="RolID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="tiusr30pl_PeliculasProgra11Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ActoresStaff" EntityType="Self.ActoresStaff" />
+          <EntitySet Name="CalificacionesExpertos" EntityType="Self.CalificacionesExpertos" />
+          <EntitySet Name="Comentarios" EntityType="Self.Comentarios" />
+          <EntitySet Name="Estado" EntityType="Self.Estado" />
+          <EntitySet Name="ExpertosEnCalificaciones" EntityType="Self.ExpertosEnCalificaciones" />
+          <EntitySet Name="Peliculas" EntityType="Self.Peliculas" />
+          <EntitySet Name="Posters" EntityType="Self.Posters" />
+          <EntitySet Name="Rol" EntityType="Self.Rol" />
+          <EntitySet Name="RolesEnPelicula" EntityType="Self.RolesEnPelicula" />
+          <EntitySet Name="Usuarios" EntityType="Self.Usuarios" />
+          <AssociationSet Name="FK__RolesEnPe__Actor__440B1D61" Association="Self.FK__RolesEnPe__Actor__440B1D61">
+            <End Role="ActoresStaff" EntitySet="ActoresStaff" />
+            <End Role="RolesEnPelicula" EntitySet="RolesEnPelicula" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Calificac__Exper__48CFD27E" Association="Self.FK__Calificac__Exper__48CFD27E">
+            <End Role="ExpertosEnCalificaciones" EntitySet="ExpertosEnCalificaciones" />
+            <End Role="CalificacionesExpertos" EntitySet="CalificacionesExpertos" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Calificac__Pelic__47DBAE45" Association="Self.FK__Calificac__Pelic__47DBAE45">
+            <End Role="Peliculas" EntitySet="Peliculas" />
+            <End Role="CalificacionesExpertos" EntitySet="CalificacionesExpertos" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Comentari__Pelic__4F7CD00D" Association="Self.FK__Comentari__Pelic__4F7CD00D">
+            <End Role="Peliculas" EntitySet="Peliculas" />
+            <End Role="Comentarios" EntitySet="Comentarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Comentari__Respu__5165187F" Association="Self.FK__Comentari__Respu__5165187F">
+            <End Role="Comentarios" EntitySet="Comentarios" />
+            <End Role="Comentarios1" EntitySet="Comentarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Comentari__Usuar__5070F446" Association="Self.FK__Comentari__Usuar__5070F446">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Comentarios" EntitySet="Comentarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Usuarios__IDEsta__4CA06362" Association="Self.FK__Usuarios__IDEsta__4CA06362">
+            <End Role="Estado" EntitySet="Estado" />
+            <End Role="Usuarios" EntitySet="Usuarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Peliculas__Poste__403A8C7D" Association="Self.FK__Peliculas__Poste__403A8C7D">
+            <End Role="Posters" EntitySet="Posters" />
+            <End Role="Peliculas" EntitySet="Peliculas" />
+          </AssociationSet>
+          <AssociationSet Name="FK__RolesEnPe__IDPel__44FF419A" Association="Self.FK__RolesEnPe__IDPel__44FF419A">
+            <End Role="Peliculas" EntitySet="Peliculas" />
+            <End Role="RolesEnPelicula" EntitySet="RolesEnPelicula" />
+          </AssociationSet>
+          <AssociationSet Name="FK__RolesEnPe__RolID__4316F928" Association="Self.FK__RolesEnPe__RolID__4316F928">
+            <End Role="Rol" EntitySet="Rol" />
+            <End Role="RolesEnPelicula" EntitySet="RolesEnPelicula" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="tiusr30pl_PeliculasProgra11ModelStoreContainer" CdmEntityContainer="tiusr30pl_PeliculasProgra11Entities">
+          <EntitySetMapping Name="ActoresStaff">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.ActoresStaff">
+              <MappingFragment StoreEntitySet="ActoresStaff">
+                <ScalarProperty Name="ActorStaffID" ColumnName="ActorStaffID" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="PaginaWeb" ColumnName="PaginaWeb" />
+                <ScalarProperty Name="Facebook" ColumnName="Facebook" />
+                <ScalarProperty Name="Instagram" ColumnName="Instagram" />
+                <ScalarProperty Name="Twitter" ColumnName="Twitter" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CalificacionesExpertos">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.CalificacionesExpertos">
+              <MappingFragment StoreEntitySet="CalificacionesExpertos">
+                <ScalarProperty Name="PeliculaID" ColumnName="PeliculaID" />
+                <ScalarProperty Name="ExpertoID" ColumnName="ExpertoID" />
+                <ScalarProperty Name="Calificacion" ColumnName="Calificacion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Comentarios">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.Comentarios">
+              <MappingFragment StoreEntitySet="Comentarios">
+                <ScalarProperty Name="ComentarioID" ColumnName="ComentarioID" />
+                <ScalarProperty Name="PeliculaID" ColumnName="PeliculaID" />
+                <ScalarProperty Name="UsuarioID" ColumnName="UsuarioID" />
+                <ScalarProperty Name="Comentario" ColumnName="Comentario" />
+                <ScalarProperty Name="FechaComentario" ColumnName="FechaComentario" />
+                <ScalarProperty Name="RespuestaAComentarioID" ColumnName="RespuestaAComentarioID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Estado">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.Estado">
+              <MappingFragment StoreEntitySet="Estado">
+                <ScalarProperty Name="EstadoID" ColumnName="EstadoID" />
+                <ScalarProperty Name="NombreEstado" ColumnName="NombreEstado" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ExpertosEnCalificaciones">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.ExpertosEnCalificaciones">
+              <MappingFragment StoreEntitySet="ExpertosEnCalificaciones">
+                <ScalarProperty Name="ExpertoID" ColumnName="ExpertoID" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="codigoexperto" ColumnName="codigoexperto" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Peliculas">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.Peliculas">
+              <MappingFragment StoreEntitySet="Peliculas">
+                <ScalarProperty Name="PeliculaID" ColumnName="PeliculaID" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Resena" ColumnName="Resena" />
+                <ScalarProperty Name="CalificacionGenerQal" ColumnName="CalificacionGenerQal" />
+                <ScalarProperty Name="FechaLanzamiento" ColumnName="FechaLanzamiento" />
+                <ScalarProperty Name="PosterID" ColumnName="PosterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Posters">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.Posters">
+              <MappingFragment StoreEntitySet="Posters">
+                <ScalarProperty Name="PosterID" ColumnName="PosterID" />
+                <ScalarProperty Name="NombreArchivo" ColumnName="NombreArchivo" />
+                <ScalarProperty Name="RutaArchivo" ColumnName="RutaArchivo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Rol">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.Rol">
+              <MappingFragment StoreEntitySet="Rol">
+                <ScalarProperty Name="RolID" ColumnName="RolID" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RolesEnPelicula">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.RolesEnPelicula">
+              <MappingFragment StoreEntitySet="RolesEnPelicula">
+                <ScalarProperty Name="RolEnPeliculaID" ColumnName="RolEnPeliculaID" />
+                <ScalarProperty Name="RolID" ColumnName="RolID" />
+                <ScalarProperty Name="ActorStaffID" ColumnName="ActorStaffID" />
+                <ScalarProperty Name="IDPelic" ColumnName="IDPelic" />
+                <ScalarProperty Name="OrdenAparicion" ColumnName="OrdenAparicion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Usuarios">
+            <EntityTypeMapping TypeName="tiusr30pl_PeliculasProgra11Model.Usuarios">
+              <MappingFragment StoreEntitySet="Usuarios">
+                <ScalarProperty Name="UsuarioID" ColumnName="UsuarioID" />
+                <ScalarProperty Name="NombreUsuario" ColumnName="NombreUsuario" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Apellidos" ColumnName="Apellidos" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Contrasena" ColumnName="Contrasena" />
+                <ScalarProperty Name="IDEstado" ColumnName="IDEstado" />
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="TokenExpiracion" ColumnName="TokenExpiracion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
