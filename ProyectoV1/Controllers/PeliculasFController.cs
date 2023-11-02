@@ -6,6 +6,7 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Transactions;
+using System.Web;
 using System.Web.Http;
 
 namespace ProyectoV1.Controllers
@@ -68,46 +69,21 @@ namespace ProyectoV1.Controllers
 
             return Ok(pelicula);
         }
-
         [HttpGet]
         [Route("api/PeliculasF/GetPeliculas")]
         public IHttpActionResult GetPeliculas()
         {
             var peliculas = Pelis.Peliculas
-                .OrderByDescending(p => p.FechaLanzamiento)
-                .Take(5)
-                .Select(p => new PeliculaDto
+                .OrderByDescending(p => p.FechaLanzamiento) // Ordena por fecha de lanzamiento en orden descendente (las más recientes primero)
+                .Take(5) // Limita a las 5 películas más recientes
+                .Select(p => new
                 {
                     PeliculaID = p.PeliculaID,
                     Nombre = p.Nombre,
                     Resena = p.Resena,
                     CalificacionGenerQal = p.CalificacionGenerQal,
                     FechaLanzamiento = p.FechaLanzamiento,
-                    PosterID = p.PosterID,
-                    Involucrados = p.RolesEnPelicula.Select(r => new InvolucradoDto
-                    {
-                        ActorStaffID = (int)r.ActorStaffID,
-                        Nombre = r.ActoresStaff.Nombre,
-                        PaginaWeb = r.ActoresStaff.PaginaWeb,
-                        Facebook = r.ActoresStaff.Facebook,
-                        Instagram = r.ActoresStaff.Instagram,
-                        Twitter = r.ActoresStaff.Twitter
-                    }).ToList(),
-                    Comentarios = p.Comentarios.Select(c => new ComentarioDto
-                    {
-                        ComentarioID = c.ComentarioID,
-                        PeliculaID = c.PeliculaID.Value,
-                        UsuarioID = c.UsuarioID.Value,
-                        Comentario = c.Comentario,
-                        FechaComentario = c.FechaComentario.Value,
-                        RespuestaAComentarioID = c.RespuestaAComentarioID.Value
-                    }).ToList(),
-                    Calificaciones = p.CalificacionesExpertos.Select(cal => new CalificacionDto
-                    {
-                        PeliculaID = cal.PeliculaID,
-                        ExpertoID = cal.ExpertoID,
-                        Calificacion = (decimal)cal.Calificacion
-                    }).ToList()
+                    PosterID = p.PosterID
                 })
                 .ToList();
 
@@ -116,8 +92,37 @@ namespace ProyectoV1.Controllers
                 return NotFound();
             }
 
-            return Ok(peliculas);
+            var peliculasConRutaPoster = new List<GetPeliculas>();
+
+            // Obtener la URL base de la solicitud actual
+            var request = HttpContext.Current.Request;
+            var baseUrl = request.Url.GetLeftPart(UriPartial.Authority);
+
+            foreach (var pelicula in peliculas)
+            {
+                var poster = Pelis.Posters.FirstOrDefault(p => p.PosterID == pelicula.PosterID);
+
+                if (poster != null)
+                {
+                    var peliculaConRuta = new GetPeliculas
+                    {
+                        PeliculaID = pelicula.PeliculaID,
+                        Nombre = pelicula.Nombre,
+                        Resena = pelicula.Resena,
+                        CalificacionGenerQal = pelicula.CalificacionGenerQal,
+                        FechaLanzamiento = pelicula.FechaLanzamiento,
+                        PosterID = pelicula.PosterID,
+                        RutaPoster = baseUrl + "/APIV3" + poster.RutaArchivo // Construir la URL completa
+                    };
+
+                    peliculasConRutaPoster.Add(peliculaConRuta);
+                }
+            }
+
+            return Ok(peliculasConRutaPoster);
         }
+
+
 
         [HttpPost]
         [Route("api/Peliculas/RegistrarPelicula")]

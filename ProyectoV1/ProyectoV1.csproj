@@ -142,6 +142,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="Images\Posters\Avengers.jpg" />
+    <Content Include="Images\Posters\Ironman2.JPG" />
+    <Content Include="Images\Posters\Thor1.jpg" />
+    <Content Include="Images\Posters\Thor2.jpg" />
+    <Content Include="Images\Posters\Thor3.jpg" />
+    <Content Include="Images\Posters\ThorloveandTunder.jpg" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -162,9 +168,11 @@
     <Compile Include="Models\EditarPelicula.cs" />
     <Compile Include="Models\EditarUsuario.cs" />
     <Compile Include="Models\Estado.cs" />
+    <Compile Include="Models\GetPeliculas.cs" />
     <Compile Include="Models\InvolucradosPelis.cs" />
     <Compile Include="Models\loginUsuario.cs" />
     <Compile Include="Models\PeliculaDto.cs" />
+    <Compile Include="Models\Poster.cs" />
     <Compile Include="Models\RegistrarPelicula.cs" />
     <Compile Include="Models\RegistroUsuario.cs" />
     <Compile Include="Models\Resgistrarpelicula.cs" />
