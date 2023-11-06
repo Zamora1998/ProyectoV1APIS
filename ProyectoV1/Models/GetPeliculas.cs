@@ -15,6 +15,8 @@ namespace ProyectoV1.Models
         public DateTime? FechaLanzamiento { get; set; }
         public int? PosterID { get; set; }
         public string RutaPoster { get; internal set; }
+        
     }
+
 
 }

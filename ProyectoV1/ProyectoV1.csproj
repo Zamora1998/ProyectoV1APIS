@@ -154,6 +154,7 @@
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\CalificacionExpertoFController.cs" />
+    <Compile Include="Models\ComentarioDto.cs" />
     <Compile Include="Controllers\ComentariosFController.cs" />
     <Compile Include="Controllers\NEWEstadoController.cs" />
     <Compile Include="Controllers\PeliculasFController.cs" />
@@ -171,7 +172,6 @@
     <Compile Include="Models\GetPeliculas.cs" />
     <Compile Include="Models\InvolucradosPelis.cs" />
     <Compile Include="Models\loginUsuario.cs" />
-    <Compile Include="Models\PeliculaDto.cs" />
     <Compile Include="Models\Poster.cs" />
     <Compile Include="Models\RegistrarPelicula.cs" />
     <Compile Include="Models\RegistroUsuario.cs" />

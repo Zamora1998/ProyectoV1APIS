@@ -21,54 +21,8 @@ namespace ProyectoV1.Controllers
             Pelis.Configuration.ProxyCreationEnabled = true;
         }
 
-        [HttpGet]
-        [Route("api/Peliculas/GetPeliculaPorId/{id}")]
-        public IHttpActionResult GetPeliculaPorId(int id)
-        {
-            var pelicula = Pelis.Peliculas
-                .Where(p => p.PeliculaID == id)
-                .Select(p => new PeliculaDto
-                {
-                    PeliculaID = p.PeliculaID,
-                    Nombre = p.Nombre,
-                    Resena = p.Resena,
-                    CalificacionGenerQal = p.CalificacionGenerQal,
-                    FechaLanzamiento = p.FechaLanzamiento,
-                    PosterID = p.PosterID,
-                    Involucrados = p.RolesEnPelicula.Select(r => new InvolucradoDto
-                    {
-                        ActorStaffID = (int)r.ActorStaffID,
-                        Nombre = r.ActoresStaff.Nombre,
-                        PaginaWeb = r.ActoresStaff.PaginaWeb,
-                        Facebook = r.ActoresStaff.Facebook,
-                        Instagram = r.ActoresStaff.Instagram,
-                        Twitter = r.ActoresStaff.Twitter
-                    }).ToList(),
-                    Comentarios = p.Comentarios.Select(c => new ComentarioDto
-                    {
-                        ComentarioID = c.ComentarioID,
-                        PeliculaID = c.PeliculaID.Value,
-                        UsuarioID = c.UsuarioID.Value,
-                        Comentario = c.Comentario,
-                        FechaComentario = c.FechaComentario.Value,
-                        RespuestaAComentarioID = c.RespuestaAComentarioID.Value
-                    }).ToList(),
-                    Calificaciones = p.CalificacionesExpertos.Select(cal => new CalificacionDto
-                    {
-                        PeliculaID = cal.PeliculaID,
-                        ExpertoID = cal.ExpertoID,
-                        Calificacion = (decimal)cal.Calificacion
-                    }).ToList()
-                })
-                .SingleOrDefault();
+        
 
-            if (pelicula == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(pelicula);
-        }
         [HttpGet]
         [Route("api/PeliculasF/GetPeliculas")]
         public IHttpActionResult GetPeliculas()
@@ -122,6 +76,24 @@ namespace ProyectoV1.Controllers
             return Ok(peliculasConRutaPoster);
         }
 
+
+        [HttpGet]
+        [Route("api/PeliculasF/GetPeliculasNombre")]
+        public IHttpActionResult GetPeliculas([FromUri] string nombrePelicula)
+        {
+            // Realiza una búsqueda insensible a mayúsculas y minúsculas
+            var peliculasEncontradas = Pelis.Peliculas
+                .Where(p => p.Nombre.ToLower().Contains(nombrePelicula.ToLower()))
+                .Select(p => p.Nombre)
+                .ToList();
+
+            if (peliculasEncontradas.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(peliculasEncontradas);
+        }
 
 
         [HttpPost]
@@ -223,5 +195,51 @@ namespace ProyectoV1.Controllers
                 return InternalServerError(ex); // Devolver un error interno del servidor junto con el mensaje de error
             }
         }
+        [HttpGet]
+        [Route("api/PeliculaDetalle/ObtenerDetallesPorNombre")]
+        public IHttpActionResult ObtenerDetallesPorNombre(string nombrePelicula)
+        {
+            // Buscar la película por su nombre
+            var pelicula = Pelis.Peliculas
+                .FirstOrDefault(p => p.Nombre.ToLower() == nombrePelicula.ToLower());
+
+            if (pelicula == null)
+            {
+                return NotFound(); // Devolver 404 si la película no se encuentra
+            }
+            var poster = Pelis.Posters.FirstOrDefault(p => p.PosterID == pelicula.PosterID);
+            var rutaPoster = poster != null ? poster.RutaArchivo : null;
+
+            // Obtener comentarios de la película
+            var comentarios = Pelis.Comentarios
+                .Where(c => c.PeliculaID == pelicula.PeliculaID)
+                .Select(c => new ComentarioDto
+                {
+                    //ComentarioID = c.ComentarioID,
+                    //PeliculaID = c.PeliculaID,
+                    UsuarioID = c.UsuarioID,
+                    Comentario = c.Comentario,
+                    FechaComentario = c.FechaComentario,
+        })
+                .ToList();
+            var request = HttpContext.Current.Request;
+            var baseUrl = request.Url.GetLeftPart(UriPartial.Authority);
+            var rutaImagenCompleta = baseUrl + "/APIV3" + rutaPoster;
+
+            var peliculaDetalle = new
+            {
+                PeliculaID = pelicula.PeliculaID,
+                Nombre = pelicula.Nombre,
+                Resena = pelicula.Resena,
+                CalificacionGenerQal = pelicula.CalificacionGenerQal,
+                FechaLanzamiento = pelicula.FechaLanzamiento,
+                RutaPoster = rutaImagenCompleta, // Usar la URL completa
+                Comentarios = comentarios
+            };
+
+            return Ok(peliculaDetalle);
+        }
+
     }
 }
+
