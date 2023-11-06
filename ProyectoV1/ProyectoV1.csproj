@@ -176,6 +176,7 @@
     <Compile Include="Models\RegistrarPelicula.cs" />
     <Compile Include="Models\RegistroUsuario.cs" />
     <Compile Include="Models\Resgistrarpelicula.cs" />
+    <Compile Include="Models\Rolenpelicula.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

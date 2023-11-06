@@ -23,5 +23,8 @@ namespace DataCliente
         public virtual ActoresStaff ActoresStaff { get; set; }
         public virtual Peliculas Peliculas { get; set; }
         public virtual Rol Rol { get; set; }
+        public int PeliculaID { get; set; }
+        public int ActorStaffid { get; set; }
+        public string Nombre { get; set; }
     }
 }

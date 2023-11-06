@@ -96,105 +96,7 @@ namespace ProyectoV1.Controllers
         }
 
 
-        [HttpPost]
-        [Route("api/Peliculas/RegistrarPelicula")]
-        public IHttpActionResult RegistrarPelicula(Resgistrarpelicula nuevaPelicula)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Verificar si la película ya existe por su nombre
-            var peliculaExistente = Pelis.Peliculas.FirstOrDefault(p => p.Nombre == nuevaPelicula.Nombre);
-
-            if (peliculaExistente != null)
-            {
-                return Conflict(); // Devolver un código 409 Conflict si la película ya existe
-            }
-
-            // Crear una nueva película a partir de los datos proporcionados
-            var pelicula = new Peliculas
-            {
-                Nombre = nuevaPelicula.Nombre,
-                Resena = nuevaPelicula.Resena,
-                CalificacionGenerQal = nuevaPelicula.CalificacionGenerQal,
-                FechaLanzamiento = nuevaPelicula.FechaLanzamiento,
-                PosterID = nuevaPelicula.PosterID
-            };
-
-            // Agregar la película a la base de datos
-            Pelis.Peliculas.Add(pelicula);
-            Pelis.SaveChanges();
-
-            // Devolver un código 201 Created y la película recién creada
-            return Created(Request.RequestUri + "/" + pelicula.PeliculaID, pelicula);
-        }
-    
-    [HttpPut]
-        [Route("api/PeliculasF/EditarPelicula")]
-        public IHttpActionResult EditarPelicula(EditarPelicula datosEditados)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var peliculaExistente = Pelis.Peliculas.FirstOrDefault(p => p.PeliculaID == datosEditados.PeliculaID);
-
-            if (peliculaExistente == null)
-            {
-                return NotFound(); // Devolver un código 404 si la película no se encuentra
-            }
-
-            peliculaExistente.Nombre = datosEditados.Nombre;
-            peliculaExistente.Resena = datosEditados.Resena;
-            peliculaExistente.CalificacionGenerQal = datosEditados.CalificacionGenerQal;
-            peliculaExistente.FechaLanzamiento = datosEditados.FechaLanzamiento;
-            peliculaExistente.PosterID = datosEditados.PosterID;
-
-            Pelis.SaveChanges();
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        [HttpDelete]
-        [Route("api/PeliculasF/EliminarPeliculaPorCodigo")]
-        public IHttpActionResult EliminarPeliculaPorCodigo(int idpeli )
-        {
-            var peliculaAEliminar = Pelis.Peliculas.FirstOrDefault(p => p.PeliculaID == idpeli);
-
-            if (peliculaAEliminar == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                // Eliminar los datos relacionados en RolesEnPelicula
-                var rolesRelacionados = Pelis.RolesEnPelicula.Where(r => r.IDPelic == peliculaAEliminar.PeliculaID).ToList();
-                Pelis.RolesEnPelicula.RemoveRange(rolesRelacionados);
-
-                // Eliminar la película de la base de datos
-                Pelis.Peliculas.Remove(peliculaAEliminar);
-                Pelis.SaveChanges();
-
-                if (peliculaAEliminar != null)
-                {
-                    return Ok(peliculaAEliminar); // Devuelve los detalles de la película eliminada si es necesario
-                }
-                else
-                {
-                    return StatusCode(HttpStatusCode.NoContent);
-                }
-            }
-            catch (DbUpdateException ex)
-            {
-                // Loguear o imprimir la excepción interna para conocer la causa exacta del error
-                Console.WriteLine(ex.InnerException.Message);
-                return InternalServerError(ex); // Devolver un error interno del servidor junto con el mensaje de error
-            }
-        }
+     
         [HttpGet]
         [Route("api/PeliculaDetalle/ObtenerDetallesPorNombre")]
         public IHttpActionResult ObtenerDetallesPorNombre(string nombrePelicula)
@@ -215,26 +117,36 @@ namespace ProyectoV1.Controllers
                 .Where(c => c.PeliculaID == pelicula.PeliculaID)
                 .Select(c => new ComentarioDto
                 {
-                    //ComentarioID = c.ComentarioID,
-                    //PeliculaID = c.PeliculaID,
-                    UsuarioID = c.UsuarioID,
                     Comentario = c.Comentario,
                     FechaComentario = c.FechaComentario,
-        })
-                .ToList();
+                }).ToList();
+
+            // Obtener actores y sus roles en la película con descripción de rol
+            // Obtener actores y sus roles en la película con descripción de rol
+            var actoresConRoles = Pelis.RolesEnPelicula
+                .Where(r => r.IDPelic == pelicula.PeliculaID)
+                .Select(r => new
+                {
+                    NombreActor = Pelis.ActoresStaff
+                        .FirstOrDefault(a => a.ActorStaffID == r.ActorStaffID)
+                        .Nombre,
+                    Rol = Pelis.Rol
+                        .FirstOrDefault(rol => rol.RolID == r.RolID)
+                        .Nombre,
+                }).ToList();
             var request = HttpContext.Current.Request;
             var baseUrl = request.Url.GetLeftPart(UriPartial.Authority);
             var rutaImagenCompleta = baseUrl + "/APIV3" + rutaPoster;
 
             var peliculaDetalle = new
             {
-                PeliculaID = pelicula.PeliculaID,
                 Nombre = pelicula.Nombre,
                 Resena = pelicula.Resena,
                 CalificacionGenerQal = pelicula.CalificacionGenerQal,
                 FechaLanzamiento = pelicula.FechaLanzamiento,
                 RutaPoster = rutaImagenCompleta, // Usar la URL completa
-                Comentarios = comentarios
+                Comentarios = comentarios,
+                ActoresStaff= actoresConRoles
             };
 
             return Ok(peliculaDetalle);
