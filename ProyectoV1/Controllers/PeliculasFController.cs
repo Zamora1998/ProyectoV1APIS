@@ -21,15 +21,13 @@ namespace ProyectoV1.Controllers
             Pelis.Configuration.ProxyCreationEnabled = true;
         }
 
-        
-
         [HttpGet]
         [Route("api/PeliculasF/GetPeliculas")]
         public IHttpActionResult GetPeliculas()
         {
             var peliculas = Pelis.Peliculas
                 .OrderByDescending(p => p.FechaLanzamiento) // Ordena por fecha de lanzamiento en orden descendente (las más recientes primero)
-                .Take(5) // Limita a las 5 películas más recientes
+                .Take(5) 
                 .Select(p => new
                 {
                     PeliculaID = p.PeliculaID,
@@ -41,14 +39,27 @@ namespace ProyectoV1.Controllers
                 })
                 .ToList();
 
+            var actoresYRoles = Pelis.RolesEnPelicula
+               .Select(r => new PeliculaDetalle
+               {
+                   NombrePelicula = Pelis.Peliculas
+                       .FirstOrDefault(p => p.PeliculaID == r.IDPelic)
+                       .Nombre,
+                   NombreActor = Pelis.ActoresStaff
+                       .FirstOrDefault(a => a.ActorStaffID == r.ActorStaffID)
+                       .Nombre,
+                   Rol = Pelis.Rol
+                       .FirstOrDefault(rol => rol.RolID == r.RolID)
+                       .Nombre
+               })
+               .ToList();
+
             if (peliculas == null || peliculas.Count == 0)
             {
                 return NotFound();
             }
 
             var peliculasConRutaPoster = new List<GetPeliculas>();
-
-            // Obtener la URL base de la solicitud actual
             var request = HttpContext.Current.Request;
             var baseUrl = request.Url.GetLeftPart(UriPartial.Authority);
 
@@ -66,7 +77,7 @@ namespace ProyectoV1.Controllers
                         CalificacionGenerQal = pelicula.CalificacionGenerQal,
                         FechaLanzamiento = pelicula.FechaLanzamiento,
                         PosterID = pelicula.PosterID,
-                        RutaPoster = baseUrl + "/APIV3" + poster.RutaArchivo // Construir la URL completa
+                        RutaPoster = baseUrl + "/APIV4" + poster.RutaArchivo // Construir la URL completa
                     };
 
                     peliculasConRutaPoster.Add(peliculaConRuta);
@@ -75,8 +86,6 @@ namespace ProyectoV1.Controllers
 
             return Ok(peliculasConRutaPoster);
         }
-
-
         [HttpGet]
         [Route("api/PeliculasF/GetPeliculasNombre")]
         public IHttpActionResult GetPeliculas([FromUri] string nombrePelicula)
@@ -95,8 +104,61 @@ namespace ProyectoV1.Controllers
             return Ok(peliculasEncontradas);
         }
 
+        [HttpGet]
+        [Route("api/PeliculasF/ObtenerDetalles")]
+        public IHttpActionResult ObtenerDetalles()
+        {
+            var peliculas = Pelis.Peliculas
+                .OrderByDescending(p => p.FechaLanzamiento)
+                .Take(5)
+                .Select(p => new DetallePelicula
+                {
+                    PeliculaID = p.PeliculaID,
+                    Nombre = p.Nombre,
+                    Resena = p.Resena,
+                    CalificacionGenerQal = (double)p.CalificacionGenerQal,
+                    FechaLanzamiento = (DateTime)p.FechaLanzamiento,
+                    PosterID = p.PosterID
+                })
+                .ToList();
 
-     
+            var detallesPeliculas = new List<DetallePelicula>();
+            var request = HttpContext.Current.Request;
+            var baseUrl = request.Url.GetLeftPart(UriPartial.Authority);
+
+            foreach (var pelicula in peliculas)
+            {
+                var actoresConRoles = Pelis.RolesEnPelicula
+                    .Where(r => r.IDPelic == pelicula.PeliculaID)
+                    .Take(3)
+                    .Select(r => new ActorConRol
+                    {
+                        NombreActor = Pelis.ActoresStaff
+                            .FirstOrDefault(a => a.ActorStaffID == r.ActorStaffID)
+                            .Nombre,
+                        Rol = Pelis.Rol
+                            .FirstOrDefault(rol => rol.RolID == r.RolID)
+                            .Nombre
+                    })
+                    .ToList();
+
+                var poster = Pelis.Posters.FirstOrDefault(p => p.PosterID == pelicula.PosterID);
+                var rutaPoster = poster != null ? baseUrl + "/APIV4" + poster.RutaArchivo : null;
+
+                detallesPeliculas.Add(new DetallePelicula
+                {
+                    PeliculaID = pelicula.PeliculaID,
+                    Nombre = pelicula.Nombre,
+                    Resena = pelicula.Resena,
+                    CalificacionGenerQal = pelicula.CalificacionGenerQal,
+                    FechaLanzamiento = pelicula.FechaLanzamiento,
+                    RutaPoster = rutaPoster,
+                    ActoresStaff = actoresConRoles
+                });
+            }
+
+            return Ok(detallesPeliculas);
+        }
         [HttpGet]
         [Route("api/PeliculaDetalle/ObtenerDetallesPorNombre")]
         public IHttpActionResult ObtenerDetallesPorNombre(string nombrePelicula)
@@ -136,7 +198,7 @@ namespace ProyectoV1.Controllers
                 }).ToList();
             var request = HttpContext.Current.Request;
             var baseUrl = request.Url.GetLeftPart(UriPartial.Authority);
-            var rutaImagenCompleta = baseUrl + "/APIV3" + rutaPoster;
+            var rutaImagenCompleta = baseUrl + "/APIV4" + rutaPoster;
 
             var peliculaDetalle = new
             {
@@ -146,12 +208,13 @@ namespace ProyectoV1.Controllers
                 FechaLanzamiento = pelicula.FechaLanzamiento,
                 RutaPoster = rutaImagenCompleta, // Usar la URL completa
                 Comentarios = comentarios,
-                ActoresStaff= actoresConRoles
+                ActoresStaff = actoresConRoles
             };
 
             return Ok(peliculaDetalle);
         }
 
     }
+
 }
 

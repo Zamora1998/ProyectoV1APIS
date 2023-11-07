@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ProyectoV1.Models
 {
-    public class GetPeliculas
+    public class PeliculaDetalle
     {
         public int PeliculaID { get; set; }
         public string CodPelicula { get; set; }
@@ -16,7 +16,9 @@ namespace ProyectoV1.Models
         public int? PosterID { get; set; }
         public string RutaPoster { get; internal set; }
         public string Actores { get; set; }
+        public string NombrePelicula { get; internal set; }
+        public string NombreActor { get; internal set; }
+        public string Rol { get; internal set; }
     }
-
 
 }

@@ -165,18 +165,14 @@
     <Compile Include="Models\ActivarDesacUser.cs" />
     <Compile Include="Models\AgregarCalificacionExperto .cs" />
     <Compile Include="Models\AgregarComentario.cs" />
+    <Compile Include="Models\DetallePelicula.cs" />
     <Compile Include="Models\EditarComentario.cs" />
-    <Compile Include="Models\EditarPelicula.cs" />
     <Compile Include="Models\EditarUsuario.cs" />
-    <Compile Include="Models\Estado.cs" />
     <Compile Include="Models\GetPeliculas.cs" />
-    <Compile Include="Models\InvolucradosPelis.cs" />
     <Compile Include="Models\loginUsuario.cs" />
+    <Compile Include="Models\PeliculaDetalle.cs" />
     <Compile Include="Models\Poster.cs" />
-    <Compile Include="Models\RegistrarPelicula.cs" />
     <Compile Include="Models\RegistroUsuario.cs" />
-    <Compile Include="Models\Resgistrarpelicula.cs" />
-    <Compile Include="Models\Rolenpelicula.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
