@@ -9,5 +9,6 @@ namespace ProyectoV1.Models
     {
         public string NombreUsuario { get; set; }
         public int IDEstado { get; set; }
+        public int? noReturn { get; set; }
     }
 }

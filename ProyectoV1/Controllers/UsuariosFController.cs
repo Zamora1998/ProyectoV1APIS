@@ -11,13 +11,13 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Data.Entity.Validation;
+using System.Net.Http.Formatting;
 
 namespace ProyectoV1.Controllers
 {
     public class UsuariosFController : ApiController
     {
         private tiusr30pl_PeliculasProgra11Entities Users = new tiusr30pl_PeliculasProgra11Entities();
-
 
         public UsuariosFController()
         {
@@ -56,84 +56,83 @@ namespace ProyectoV1.Controllers
         [Route("api/UsuariosF/RegistrarUsuario")]
         public IHttpActionResult RegistrarUsuario(RegistroUsuario registroUsuario)
         {
-            if (Users.Usuarios.Any(u => u.NombreUsuario == registroUsuario.NombreUsuario))
+            try
             {
-                return BadRequest("El nombre de usuario ya está en uso.");
+                if (Users.Usuarios.Any(u => u.NombreUsuario == registroUsuario.NombreUsuario))
+                {
+                    return Conflict();
+                }
+
+                var contrasenaEncriptada = EncriptarContrasena(registroUsuario.Contrasena);
+
+                var nuevoUsuario = new Usuarios
+                {
+                    NombreUsuario = registroUsuario.NombreUsuario,
+                    Nombre = registroUsuario.Nombre,
+                    Apellidos = registroUsuario.Apellidos,
+                    Email = registroUsuario.Email,
+                    Contrasena = contrasenaEncriptada,
+                    IDEstado = 1,
+                    Token = null,
+                    TokenExpiracion = null
+                };
+
+                Users.Usuarios.Add(nuevoUsuario);
+                Users.SaveChanges();
+
+                var requestUri = Request.RequestUri;
+                var newResourceUrl = new Uri(requestUri, $"api/UsuariosF/RegistrarUsuario/{nuevoUsuario.UsuarioID}");
+
+                return Content(HttpStatusCode.Created, nuevoUsuario, new JsonMediaTypeFormatter(), "application/json");
             }
-
-            // Encriptar la contraseña utilizando SHA-256 y truncar a 128 bits (16 bytes)
-            var contrasenaEncriptada = EncriptarContrasena(registroUsuario.Contrasena);
-
-            var nuevoUsuario = new Usuarios
+            catch (Exception ex)
             {
-                NombreUsuario = registroUsuario.NombreUsuario,
-                Nombre = registroUsuario.Nombre,
-                Apellidos = registroUsuario.Apellidos,
-                Email = registroUsuario.Email,
-                Contrasena = contrasenaEncriptada, // Almacenar la contraseña encriptada
-                IDEstado = 1,
-                Token = null,
-                TokenExpiracion = null
-            };
-
-            Users.Usuarios.Add(nuevoUsuario);
-            Users.SaveChanges();
-
-            return Ok();
-        }
-
-        // Función para encriptar la contraseña utilizando SHA-256 y truncar a 128 bits
-        private string EncriptarContrasena(string contrasena)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                // Convierte la contraseña en una matriz de bytes
-                byte[] contrasenaBytes = Encoding.UTF8.GetBytes(contrasena);
-
-                // Calcula el hash SHA-256 de la contraseña
-                byte[] hashBytes = sha256.ComputeHash(contrasenaBytes);
-
-                // Trunca el hash a 16 bytes (128 bits)
-                byte[] hashTruncado = new byte[16];
-                Array.Copy(hashBytes, hashTruncado, 16);
-
-                // Convierte el hash truncado en una cadena hexadecimal
-                string hashHex = BitConverter.ToString(hashTruncado).Replace("-", "").ToLower();
-
-                return hashHex;
+                return InternalServerError(ex);
             }
         }
-
-
 
         [HttpPut]
         [Route("api/UsuariosF/EditarUsuario")]
-        public IHttpActionResult EditarUsuario(string nombreUsuario, EditarUsuario registroUsuario)
+        public IHttpActionResult EditarUsuario(string nombreUsuario, EditarUsuario registroUsuario, int? noReturn)
         {
             var usuarioExistente = Users.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombreUsuario);
 
             if (usuarioExistente == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            // Actualizar los campos del usuario con los nuevos valores
             usuarioExistente.NombreUsuario = registroUsuario.NombreUsuario;
             usuarioExistente.Nombre = registroUsuario.Nombre;
             usuarioExistente.Apellidos = registroUsuario.Apellidos;
             usuarioExistente.Email = registroUsuario.Email;
             usuarioExistente.Contrasena = registroUsuario.Contrasena;
 
-            // Guardar los cambios en la base de datos (si es necesario)
             Users.SaveChanges();
 
-            return Ok();
-        }
+            if (noReturn == 1)
+            {
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            else
+            {
+                var usuarioActualizado = new
+                {
+                    usuarioExistente.UsuarioID,
+                    usuarioExistente.NombreUsuario,
+                    usuarioExistente.Nombre,
+                    usuarioExistente.Apellidos,
+                    usuarioExistente.Email,
+                    usuarioExistente.Contrasena
+                };
 
+                return Ok(usuarioActualizado);
+            }
+        }
 
         [HttpDelete]
         [Route("api/UsuariosF/EliminarUsuarioPorNombre")]
-        public IHttpActionResult EliminarUsuarioPorNombre(string nombreUsuario)
+        public IHttpActionResult EliminarUsuarioPorNombre(string nombreUsuario, int? returnData)
         {
             var usuarioAEliminar = Users.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombreUsuario);
 
@@ -145,16 +144,16 @@ namespace ProyectoV1.Controllers
             Users.Usuarios.Remove(usuarioAEliminar);
             Users.SaveChanges();
 
-            if (usuarioAEliminar != null)
+            if (returnData == 1)
             {
-                return Ok(usuarioAEliminar); 
+
+                return Ok(usuarioAEliminar);
             }
             else
             {
                 return StatusCode(HttpStatusCode.NoContent);
             }
         }
-
 
         [HttpPut]
         [Route("api/UsuariosF/ActualizarEstadoUsuario")]
@@ -169,102 +168,119 @@ namespace ProyectoV1.Controllers
 
             if (usuario.IDEstado != estadoUsuario.IDEstado)
             {
-                // Actualizar el estado del usuario
                 usuario.IDEstado = estadoUsuario.IDEstado;
                 Users.SaveChanges();
-                return Ok();
+
+                if (estadoUsuario.noReturn == 1)
+                {
+                    return StatusCode(HttpStatusCode.NoContent);
+                }
+                else
+                {
+                    var respuesta = new
+                    {
+                        IDEstado = usuario.IDEstado,
+                    };
+
+                    return Ok(respuesta);
+                }
             }
             else
             {
-
                 return StatusCode(HttpStatusCode.NoContent);
             }
         }
-        [HttpPost]
+
+        [HttpPut]
         [Route("api/UsuariosF/ValidarLogin")]
         public IHttpActionResult ValidarLogin(loginUsuario login)
         {
             try
             {
-                var usuario = Users.Usuarios.FirstOrDefault(u => u.NombreUsuario == login.NombreUsuario);
+                string contraVali = EncriptarContrasena(login.Contrasena);
+                var usuario = Users.Usuarios.FirstOrDefault(u => u.NombreUsuario == login.NombreUsuario && u.Contrasena == contraVali);
+                var estado = Users.Usuarios.FirstOrDefault(u => u.NombreUsuario == login.NombreUsuario && u.IDEstado != 1);
+
+                if (estado != null)
+                {
+                    int? idestado = estado.IDEstado;
+                    return Ok(idestado);
+                }
 
                 if (usuario == null)
                 {
-                    return BadRequest("Usuario no encontrado.");
+                    return NotFound(); // 404: Usuario no encontrado o contraseña incorrecta.
                 }
 
-                var contrasenaEncriptada = EncriptarContrasena(login.Contrasena);
-
-                if (usuario.Contrasena == contrasenaEncriptada)
+                // Generar el token con una duración de 5 minutos (300 segundos)...
+                var keyBytes = new byte[16];
+                using (var rng = new RNGCryptoServiceProvider())
                 {
- 
-                    var keyBytes = new byte[16];
-                    using (var rng = new RNGCryptoServiceProvider())
-                    {
-                        rng.GetBytes(keyBytes);
-                    }
-                    var key = BitConverter.ToString(keyBytes).Replace("-", string.Empty);
+                    rng.GetBytes(keyBytes);
+                }
+                var key = BitConverter.ToString(keyBytes).Replace("-", string.Empty);
 
-                    var claims = new[]
-                    {
-                new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioID.ToString()),
-                new Claim(ClaimTypes.Name, usuario.NombreUsuario),
-            };
+                var claims = new[]
+                {
+            new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioID.ToString()),
+            new Claim(ClaimTypes.Name, usuario.NombreUsuario),
+        };
 
-                    var tokenDescriptor = new SecurityTokenDescriptor
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddSeconds(300), // Token expira en 5 minutos (300 segundos)
+                    SigningCredentials = new SigningCredentials(
+                        new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+                        SecurityAlgorithms.HmacSha256Signature
+                    )
+                };
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                if (key.Length <= 50)
+                {
+                    usuario.Token = key;
+                    usuario.TokenExpiracion = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow.AddSeconds(login.TiempoToken), TimeZoneInfo.Local); // 5 minutos en segundos
+
+                    Users.SaveChanges();
+
+                    var userInfo = new
                     {
-                        Subject = new ClaimsIdentity(claims),
-                        Expires = DateTime.UtcNow.AddHours(1), 
-                        SigningCredentials = new SigningCredentials(
-                            new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-                            SecurityAlgorithms.HmacSha256Signature
-                        )
+                        TokenExpiracion = usuario.TokenExpiracion,
                     };
 
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-
-                    if (key.Length <= 50)
-                    {
-                        usuario.Token = key;
-                        usuario.TokenExpiracion = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow.AddHours(1), TimeZoneInfo.Local);
-
-                        Users.SaveChanges();
-
-                        var userInfo = new
-                        {
-                            UsuarioID = usuario.UsuarioID,
-                            NombreUsuario = usuario.NombreUsuario,
-                            Nombre = usuario.Nombre,
-                            Apellidos = usuario.Apellidos,
-                            Email = usuario.Email,
-                            IDEstado = usuario.IDEstado,
-                            Token = usuario.Token,
-                            TokenExpiracion = usuario.TokenExpiracion
-                        };
-
-                        return Ok(userInfo);
-                    }
-                    else
-                    {
-                        return BadRequest("La clave generada excede la longitud permitida.");
-                    }
+                    return Ok(userInfo); // 200: Token creado exitosamente.
                 }
                 else
                 {
-                    return BadRequest("Usuario o Contraseña Incorrecta.");
+                    return BadRequest(); // 400: Error al generar el token.
                 }
             }
             catch (DbEntityValidationException ex)
             {
-                var errorMessages = ex.EntityValidationErrors
-                    .SelectMany(eve => eve.ValidationErrors)
-                    .Select(error => error.ErrorMessage);
-
-                var errorMessage = string.Join(Environment.NewLine, errorMessages);
-
-                return BadRequest($"Error de validación: {errorMessage}");
+                return BadRequest("Error de validación: " + ex.Message); // 400: Error de validación.
             }
-        } 
+            catch (Exception)
+            {
+                return NotFound(); // 404: Otro error no especificado.
+            }
+        }
+
+        private string EncriptarContrasena(string contrasena)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                byte[] contrasenaBytes = Encoding.UTF8.GetBytes(contrasena);
+
+                byte[] hashBytes = sha256.ComputeHash(contrasenaBytes);
+                byte[] hashTruncado = new byte[16];
+                Array.Copy(hashBytes, hashTruncado, 16);
+                string hashHex = BitConverter.ToString(hashTruncado).Replace("-", "").ToLower();
+
+                return hashHex;
+            }
+        }
     }
 }

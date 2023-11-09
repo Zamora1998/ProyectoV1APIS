@@ -10,6 +10,6 @@ namespace ProyectoV1.Models
         public string NombreUsuario { get; set; }
         public string Contrasena { get; set; }
 
-
+        public int TiempoToken { get; set; }
     }
 }

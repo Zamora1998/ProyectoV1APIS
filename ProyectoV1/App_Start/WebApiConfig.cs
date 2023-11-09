@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using ProyectoV1.App_Start;
 
 namespace ProyectoV1
 {
@@ -9,8 +10,8 @@ namespace ProyectoV1
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
-
+            // Web API configuration and services 
+            config.EnableCors(new AccesPolicyCors());
             // Web API routes
             config.MapHttpAttributeRoutes();
 

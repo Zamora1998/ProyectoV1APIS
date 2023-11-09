@@ -77,7 +77,7 @@ namespace ProyectoV1.Controllers
                         CalificacionGenerQal = pelicula.CalificacionGenerQal,
                         FechaLanzamiento = pelicula.FechaLanzamiento,
                         PosterID = pelicula.PosterID,
-                        RutaPoster = baseUrl + "/APIV4" + poster.RutaArchivo // Construir la URL completa
+                        RutaPoster = baseUrl + "/APIV5" + poster.RutaArchivo // Construir la URL completa
                     };
 
                     peliculasConRutaPoster.Add(peliculaConRuta);
@@ -143,7 +143,7 @@ namespace ProyectoV1.Controllers
                     .ToList();
 
                 var poster = Pelis.Posters.FirstOrDefault(p => p.PosterID == pelicula.PosterID);
-                var rutaPoster = poster != null ? baseUrl + "/APIV4" + poster.RutaArchivo : null;
+                var rutaPoster = poster != null ? baseUrl + "/APIV5" + poster.RutaArchivo : null;
 
                 detallesPeliculas.Add(new DetallePelicula
                 {
@@ -198,7 +198,7 @@ namespace ProyectoV1.Controllers
                 }).ToList();
             var request = HttpContext.Current.Request;
             var baseUrl = request.Url.GetLeftPart(UriPartial.Authority);
-            var rutaImagenCompleta = baseUrl + "/APIV4" + rutaPoster;
+            var rutaImagenCompleta = baseUrl + "/APIV5" + rutaPoster;
 
             var peliculaDetalle = new
             {
